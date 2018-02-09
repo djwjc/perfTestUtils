@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
 '''
-script to convert the JMeter script's all transaction controller to simple controller
+script to convert the JMeter script's all simple controller to transaction controller
 '''
 
 import sys, re
 
 
-def tran2Sim(jmxFile):
+def sim2Trann(jmxFile):
     printStart()  # print ASCII art start
 
     newFilenName = raw_input("Enter the new filename:")
@@ -32,21 +33,17 @@ def tran2Sim(jmxFile):
 
     removed = jmxFile.read()
 
-    # remove three lines in Transaction conntroller
-    removed = re.sub(r' +<boolProp name="TransactionController.includeTimers">false</boolProp>\n', '', removed)
-    removed = re.sub(r' +<boolProp name="TransactionController.parent">false</boolProp>\n', '', removed)
-    removed = re.sub(r' +</TransactionController>\n', '', removed)
 
-    # change the transaction contoller name
+    # change the simple contoller name
     removed = re.sub(
-        r'<TransactionController guiclass=\"TransactionControllerGui\" testclass=\"TransactionController\"',
-        '<GenericController guiclass=\"LogicControllerGui\" testclass=\"GenericController\"', removed)
+        r'<GenericController guiclass=\"LogicControllerGui\" testclass=\"GenericController\"',
+        '<TransactionController guiclass=\"TransactionControllerGui\" testclass=\"TransactionController\"', removed)
 
-    GuysNeedToReplace = re.findall(r'<GenericController guiclass.+?\">', removed)
+    GuysNeedToReplace = re.findall(r'<TransactionController guiclass.+?\"/>', removed)
 
-    # replace ">" to the "/>" at the end of the controller
+    # replace "/>" to the ">" at the end of the controller, and add 3 lines at the end
     for guys in GuysNeedToReplace:
-        reguy = guys[:-1] + "/>"
+        reguy = guys[:-2] + "><boolProp name=\"TransactionController.includeTimers\">false</boolProp><boolProp name=\"TransactionController.parent\">false</boolProp></TransactionController>"
         removed = re.sub(guys, reguy, removed)
 
     newFile.write(removed)  # write in the new file
@@ -94,7 +91,7 @@ def main():
             print "File is not exist!!!"
             exit()
 
-    tran2Sim(fileName)
+    sim2Trann(fileName)
 
 
 if __name__ == '__main__':
