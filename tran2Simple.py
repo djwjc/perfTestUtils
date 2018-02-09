@@ -8,12 +8,19 @@ def tran2Sim(jmxFile):
     printStart()  # print ASCII art start
 
     newFilenName = raw_input("Enter the new filename:")
-    if newFilenName:
-        if '.jmx' in newFilenName:
-            pass
-        else:
-            newFilenName = newFilenName + ".jmx"
-    else:
+
+    if newFilenName:  # change foo to foo.jmx name style
+        newFilenName = setNameFull(newFilenName)
+        while jmxFile == newFilenName:
+            print "Please input an other name differ from the original name!"
+            newFilenName = raw_input("Enter the new filename:")
+            # if newFilenName == '':
+            #     print "Please enter an name:"
+            #
+            # else:
+            #     pass
+            newFilenName = setNameFull(newFilenName)
+    else: # set a default name to the new jmx
         newFilenName = "newjmx.jmx"
 
     jmxFile = open(jmxFile, 'r')
@@ -21,8 +28,6 @@ def tran2Sim(jmxFile):
     newFile = open(newFilenName, "w")
 
     removed = jmxFile.read()
-
-    # print ">>>>>>>>>>>>>>>>>>>>Processing>>>>>>>>>>>>>>>>>>>>"
 
     # remove three lines in Transaction conntroller
     removed = re.sub(r' +<boolProp name="TransactionController.includeTimers">false</boolProp>\n', '', removed)
@@ -36,16 +41,26 @@ def tran2Sim(jmxFile):
 
     GuysNeedToReplace = re.findall(r'<GenericController guiclass.+?\">', removed)
 
-    for guys in GuysNeedToReplace:  # replace ">" to the "/>" at the end of the controller
+    # replace ">" to the "/>" at the end of the controller
+    for guys in GuysNeedToReplace:
         reguy = guys[:-1] + "/>"
         removed = re.sub(guys, reguy, removed)
 
     newFile.write(removed)  # write in the new file
 
     jmxFile.close()  # close the original file
+
     newFile.close()  # close the output file
 
     printFinish()  # print ASCII art Finish
+
+
+def setNameFull(FileName):
+    if '.jmx' in FileName:
+        pass
+    else:
+        returnName = FileName + ".jmx"
+        return returnName
 
 
 def printStart():
